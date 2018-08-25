@@ -1,0 +1,11 @@
+.App {
+}
+
+.horiz {
+  display: flex;
+}
+.horiz > * {
+  flex: 1;
+}
+
+.EditorContainer { margin: 4px; }

@@ -1,0 +1,27 @@
+.VisualState .body {
+  padding-left: 0.5em;
+}
+
+.VisualState .MapEntry > .key {
+  margin-right: 0.5em;
+  font-size: smaller;
+  color: #393;
+}
+.VisualState .MapEntry > * {
+  display: inline-block;
+  vertical-align: top;
+}
+.VisualState .ArrayItem > .index {
+  margin-right: 0.5em;
+  font-size: smaller;
+  color: #90C;
+}
+.VisualState .ArrayItem > * {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.VisualState .kind {
+  font-size: smaller;
+  color: #A90;
+}
