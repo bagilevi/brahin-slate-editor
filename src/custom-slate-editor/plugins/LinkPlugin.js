@@ -104,7 +104,7 @@ const plugins = [
           if (label) {
             change.insertInline({
               type: 'link',
-              isVoid: false,
+              isVoid: true,
               data: { href: href, label: label },
             })
             .collapseToStartOfNextText()
@@ -191,10 +191,9 @@ const htmlSerializerRules = [
     serialize(node, children) {
       if (node.type === 'link') {
         const href = node.data.get('href')
+        const label = node.data.get('label') || href
         return (
-          <a href={href} >
-            {node.type === 'link' ? children : href}
-          </a>
+          <a href={href}>{label}</a>
         )
       }
     }
