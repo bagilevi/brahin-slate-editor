@@ -3,18 +3,16 @@ import { getEventTransfer } from 'slate-react';
 import isUrl from 'is-url';
 import { isHotkey, isKeyHotkey } from 'is-hotkey'
 import env from '../env'
-import { Text } from 'slate'
 
 const isInsertLinkHotkey = isKeyHotkey('mod+shift+l')
 const isCreateChildPageHotkey = isKeyHotkey('mod+shift+i')
 const isEditLinkHotkey = isHotkey('mod+e')
 
 function hasLinks(value) {
-  return value.inlines.some(inline => inline.type === 'raw_link' || inline.type === 'link')
+  return value.inlines.some(inline => inline.type === 'link')
 }
 
 function unwrapLink(change) {
-  change.unwrapInline('raw_link')
   change.unwrapInline('link')
 }
 
@@ -26,7 +24,7 @@ function wrapLink(change, href) {
 }
 
 function insertRawLink(change, href) {
-  change.insertInline({ type: 'raw_link', isVoid: true, data: { href: href } })
+  change.insertInline({ type: 'link', isVoid: true, data: { href: href } })
     .collapseToStartOfNextText()
     .focus()
 }
@@ -69,8 +67,9 @@ const plugins = [
     },
 
     renderNode: ({ attributes, children, node, isSelected }) => {
-      if (node.type === 'link' || node.type === 'raw_link') {
+      if (node.type === 'link') {
         const href = node.data.get('href')
+        const label = node.data.get('label')
         attributes.className = `${attributes.className || ''} ${(isSelected ? 'active' : '')} link`
         return (
           <a
@@ -78,7 +77,7 @@ const plugins = [
             onClick={(event) => handleLinkClick(event, node)}
             {...attributes}
           >
-            {node.type === 'link' ? children : href}
+            {node.isVoid ? (label || href) : children}
           </a>
         )
       }
@@ -106,8 +105,7 @@ const plugins = [
             change.insertInline({
               type: 'link',
               isVoid: false,
-              data: { href: href },
-              nodes: [Text.create(label)]
+              data: { href: href, label: label },
             })
             .collapseToStartOfNextText()
             .focus()
@@ -135,23 +133,36 @@ const plugins = [
       if (isEditLinkHotkey(event)) {
         event.preventDefault();
         const { value } = change
-        const node = value.inlines.find(inline => inline.type === 'link' || inline.type === 'raw_link')
+        const node = value.inlines.find(inline => inline.type === 'link')
         if (!node) return
 
-        const href = node.data.get('href')
-
-        env.ui.prompt('Enter the new URL for the link:', href)
-          .then((newHref) => { updateLinkHref(editor, node, newHref) })
-          .catch((err) => { editor.focus() })
+        env.ui.prompt('New URL/href', node.data.get('href'))
+          .then((newHref) => {
+            return env.ui.prompt('New label', node.data.get('label'))
+              .then((newLabel) => ({ href: newHref, label: newLabel }))
+          })
+          .then((newLinkProps) => {
+            updateLink(editor, node, newLinkProps)
+          })
+          .catch((err) => { console.error(err); editor.focus() })
       }
     },
   },
 ]
 
-function updateLinkHref(editor, node, newHref) {
+function updateLink(editor, node, { href, label }) {
+  const wasVoid = node.isVoid;
+  const isVoid = !label;
+  console.log('href', href, 'label', label, 'void', wasVoid, '=>', isVoid);
   editor.change((change) => {
-    if (newHref) {
-      change.setNodeByKey(node.key, { data: { href: newHref } })
+    if (href) {
+      change.setNodeByKey(
+        node.key,
+        {
+          isVoid: true,
+          data: { href: href, label: label },
+        }
+      )
       change.focus()
     }
     else {
@@ -168,13 +179,17 @@ const htmlSerializerRules = [
       return {
         object: 'inline',
         type: 'link',
-        data: { href: el.getAttribute('href') },
-        nodes: next(el.childNodes),
+        isVoid: true,
+        data: {
+          href: el.getAttribute('href'),
+          label: (el.text === el.getAttribute('href') ? undefined : el.text)
+        },
+        // TODO: what if the child element is not a text?
       }
     },
 
     serialize(node, children) {
-      if (node.type === 'link' || node.type === 'raw_link') {
+      if (node.type === 'link') {
         const href = node.data.get('href')
         return (
           <a href={href} >
