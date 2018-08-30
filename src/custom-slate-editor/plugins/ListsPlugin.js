@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import React from 'react';
-import EditList from 'slate-edit-list';
+import EditList from 'slate-edit-list-bagilevi';
 import AutoReplace from 'slate-auto-replace';
 import { isKeyHotkey } from 'is-hotkey'
 

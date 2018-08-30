@@ -6290,9 +6290,9 @@ slate-edit-code@^0.15.5:
     ends-with "^0.2.0"
     is-hotkey "^0.1.1"
 
-slate-edit-list@^0.12.1:
-  version "0.12.1"
-  resolved "https://registry.yarnpkg.com/slate-edit-list/-/slate-edit-list-0.12.1.tgz#11a83e4c91af858b37a516ef0b2a868910eb4903"
+slate-edit-list-bagilevi@^0.13.0:
+  version "0.13.0"
+  resolved "https://registry.yarnpkg.com/slate-edit-list-bagilevi/-/slate-edit-list-bagilevi-0.13.0.tgz#cca8edc2fe364783f640f3e7a879c59ac6ecc815"
 
 slate-hotkeys@^0.2.3:
   version "0.2.3"

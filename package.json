@@ -42,7 +42,7 @@
     "slate": "^0.40.2",
     "slate-auto-replace": "^0.11.2",
     "slate-edit-code": "^0.15.5",
-    "slate-edit-list": "^0.12.1",
+    "slate-edit-list-bagilevi": "^0.13.0",
     "slate-html-serializer": "^0.7.2",
     "slate-react": "^0.18.4",
     "slate-soft-break": "^0.8.1",
