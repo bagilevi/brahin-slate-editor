@@ -21,16 +21,16 @@ const plugins = [
   AutoReplace({
     trigger: 'space',
     before: /^(\*|-)$/,
-    transform: (transform, e, matches) => {
-      return editListPlugin.changes.wrapInList(transform, 'ul_list');
+    change: (change, e, matches) => {
+      return editListPlugin.changes.wrapInList(change, 'ul_list');
     }
   }),
 
   AutoReplace({
     trigger: 'space',
     before: /^(\d?\.)$/,
-    transform: (transform, e, matches) => {
-      return editListPlugin.changes.wrapInList(transform, 'ol_list');
+    change: (change, e, matches) => {
+      return editListPlugin.changes.wrapInList(change, 'ol_list');
     }
   }),
 

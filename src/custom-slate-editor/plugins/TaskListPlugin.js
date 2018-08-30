@@ -19,8 +19,8 @@ const plugins = [
   AutoReplace({
     trigger: 'space',
     before: /^(-?\s?\[\s?\])$/,
-    transform: (transform, e, matches) => {
-      return editListPlugin.changes.wrapInList(transform, 'task_list');
+    change: (change, e, matches) => {
+      return editListPlugin.changes.wrapInList(change, 'task_list');
     }
   }),
 

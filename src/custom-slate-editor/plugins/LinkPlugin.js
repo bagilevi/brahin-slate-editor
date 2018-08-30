@@ -77,7 +77,7 @@ const plugins = [
             onClick={(event) => handleLinkClick(event, node)}
             {...attributes}
           >
-            {node.isVoid ? (label || href) : children}
+            {(label || href)}
           </a>
         )
       }
