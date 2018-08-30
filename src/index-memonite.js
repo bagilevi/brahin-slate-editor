@@ -5,19 +5,21 @@ import App from './App';
 import { setEnv } from './custom-slate-editor/env'
 import mockEnv from './mockEnv'
 
-const Memonite = window.Memonite;
-const env = _.defaultsDeep(Memonite, mockEnv);
-setEnv(env)
+window.define(() => ((Memonite) => {
 
-console.log('memonite-slate: setting Memonite.editors["memonite-slate-editor-v1"]')
-window.Memonite.editors['memonite-slate-editor-v1'] = {
-  init: (el, onChange) => {
-    ReactDOM.render(
-      <App
-        initialHtml={el.html()}
-        onChange={onChange}
-      />,
-      el.get(0)
-    );
+  const env = _.defaultsDeep(Memonite, mockEnv);
+  setEnv(env)
+
+  return {
+    init: (el, onChange) => {
+      ReactDOM.render(
+        <App
+          initialHtml={el.html()}
+          onChange={onChange}
+        />,
+        el.get(0)
+      );
+    }
   }
-}
+
+}))
