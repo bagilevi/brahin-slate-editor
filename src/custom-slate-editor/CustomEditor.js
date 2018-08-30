@@ -22,6 +22,8 @@ class CustomEditor extends Component {
           ref={(editorRef) => this.editorRef = editorRef}
           onFocus={this.props.onFocus}
           onBlur={this.props.onBlur}
+          autoCorrect={false}
+          spellCheck={false}
         />
       </div>
     );
