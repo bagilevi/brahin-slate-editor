@@ -1,4 +1,3 @@
-console.log('memonite-slate: hello')
 if (window.Memonite) {
   console.log('memonite-slate: Memonite defined')
   require('./index-memonite')
