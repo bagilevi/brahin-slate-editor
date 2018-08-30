@@ -9,7 +9,10 @@ const env = {
         href: window.prompt('href'),
       })
     })),
-    followLink: (link) => { window.location.href = link.href; },
+    followLink: (link, opts = {}) => {
+      if (opts.ifNewResource) return;
+      window.location.href = link.href;
+    },
   },
   editDiagram: (() => { alert('editDiagram stub not implemented') }),
 }

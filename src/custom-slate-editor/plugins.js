@@ -22,6 +22,12 @@ const pluginConstructors = {
   ]
 }
 
+const buildSchema = (pluginObjects) => {
+  const schema = { document: {}, blocks: {}, inlines: {} }
+  _.each(pluginObjects, (o) => { if (o.addToSchema) o.addToSchema(schema) })
+  return schema
+}
+
 export default function AggregatePlugin(options = {}) {
   const pluginGroup = options.oneLine ? 'oneLine' : 'rich'
   const pluginObjects = pluginConstructors[pluginGroup].map((pluginConstructor) => {
@@ -30,5 +36,6 @@ export default function AggregatePlugin(options = {}) {
   return {
     plugins:             _.compact(_.flatMap(pluginObjects, o => o.plugins)),
     htmlSerializerRules: _.compact(_.flatMap(pluginObjects, o => o.htmlSerializerRules)),
+    schema:              buildSchema(pluginObjects),
   }
 }

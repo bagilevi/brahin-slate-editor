@@ -16,6 +16,7 @@ class CustomEditor extends Component {
           value={this.props.value}
           onChange={this.handleChange}
           plugins={this.aggregatePlugin.plugins}
+          schema={this.aggregatePlugin.schema}
           readOnly={this.props.readOnly}
           placeholder={this.props.placeholder}
           ref={(editorRef) => this.editorRef = editorRef}

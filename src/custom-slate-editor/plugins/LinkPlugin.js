@@ -24,8 +24,8 @@ function wrapLink(change, href) {
 }
 
 function insertRawLink(change, href) {
-  change.insertInline({ type: 'link', isVoid: true, data: { href: href } })
-    .collapseToStartOfNextText()
+  change.insertInline({ type: 'link', data: { href: href } })
+    .moveToStartOfNextText()
     .focus()
 }
 
@@ -102,13 +102,12 @@ const plugins = [
       function insertLink({ href, label }) {
         editor.change((change) => {
           if (label) {
-            change.insertInline({
+            var c = change.insertInline({
               type: 'link',
-              isVoid: true,
               data: { href: href, label: label },
             })
-            .collapseToStartOfNextText()
-            .focus()
+            c.moveToStartOfNextText()
+            c.focus()
           } else {
             change.call(insertRawLink, href);
           }
@@ -151,15 +150,11 @@ const plugins = [
 ]
 
 function updateLink(editor, node, { href, label }) {
-  const wasVoid = node.isVoid;
-  const isVoid = !label;
-  console.log('href', href, 'label', label, 'void', wasVoid, '=>', isVoid);
   editor.change((change) => {
     if (href) {
       change.setNodeByKey(
         node.key,
         {
-          isVoid: true,
           data: { href: href, label: label },
         }
       )
@@ -179,7 +174,6 @@ const htmlSerializerRules = [
       return {
         object: 'inline',
         type: 'link',
-        isVoid: true,
         data: {
           href: el.getAttribute('href'),
           label: (el.text === el.getAttribute('href') ? undefined : el.text)
@@ -200,10 +194,16 @@ const htmlSerializerRules = [
   }
 ]
 
+const addToSchema = (schema) => {
+  schema.inlines.link = {
+    isVoid: true,
+  }
+}
 
 export default function LinkPlugin(options) {
   return {
     plugins,
-    htmlSerializerRules
+    htmlSerializerRules,
+    addToSchema,
   }
 }
