@@ -10,7 +10,7 @@ const BuildHeadingPlugin = (blockType, hotKey, render) => {
       onKeyDown: (event, change) => {
         if (isKeyHotkey(hotKey)(event)) {
           event.preventDefault();
-          change.setBlock(
+          change.setBlocks(
             change.value.blocks.some(block => block.type === blockType)
             ? 'paragraph'
             : blockType
@@ -23,7 +23,7 @@ const BuildHeadingPlugin = (blockType, hotKey, render) => {
             event.preventDefault();
             change.splitBlock();
             if (change.value.startBlock.getText() === '') {
-              change.setBlock('paragraph');
+              change.setBlocks('paragraph');
             }
             return true;
           }
