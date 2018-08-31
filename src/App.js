@@ -47,8 +47,9 @@ class App extends Component {
   handleEditorChange = (editorState) => {
     const { value } = editorState;
     window.value = value;
+    const documentChanged = value.document !== this.state.value.document
     this.setState({ value });
-    if (this.props.onChange) {
+    if (this.props.onChange && documentChanged) {
       this.props.onChange(() => htmlSerializer.serialize(value))
     }
   }
