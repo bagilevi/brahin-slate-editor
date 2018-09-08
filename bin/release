@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+set -e
+
+echo
+echo "Building..."
+yarn build
+
+fn=$(ls build/static/js/main*.js)
+basename=$(basename $fn)
+targetdir=../homepage/public_html/modules
+
+for targetfname in memonite-slate-editor-v1.js memonite-slate-editor-v0.2.1.js; do
+  echo
+  echo "Copying javascript file $fn -> $targetdir/$targetfname..."
+  cat $fn | perl -pe "s/\Q$basename/$targetfname/g" > $targetdir/$targetfname
+
+  echo "Copying sourcemap for $fn.map -> $targetdir/$targetfname.map..."
+  cp -f $fn.map $targetdir/$targetfname.map
+done
+
+echo
+echo "Releasing..."
+exec ../homepage/bin/release
