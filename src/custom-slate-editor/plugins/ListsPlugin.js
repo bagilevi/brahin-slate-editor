@@ -77,54 +77,6 @@ const BLOCK_TAGS_TO_TYPES = {
 }
 const BLOCK_TYPES_TO_TAGS = _.invert(BLOCK_TAGS_TO_TYPES);
 
-const isBlankTextNode = (node) => (
-  node.object === 'text' && (
-    node.leaves.length === 0 ||
-      _.every(node.leaves, (leaf) => (
-        /^\s*$/.test(leaf.text)
-      ))
-  )
-)
-
-const ignoreWhitespaceNodes = (nodes) => (
-  _.filter(nodes, (node) => (
-    !isBlankTextNode(node)
-  ))
-)
-
-// All items of ul_list, ol_list and list_item must be blocks, because of the
-// way `slate-edit-list` was designed.
-const wrapTextNodes = (nodes) => {
-  const newNodes = [];
-  var lastNodeType = null;
-  var lastTextNode = null;
-
-  nodes.forEach((node) => {
-    if (node.object === 'text') {
-      if (lastNodeType === 'text') {
-        // Append to the last text node
-        lastTextNode.leaves = lastTextNode.leaves.concat(node.leaves);
-      }
-      else {
-        // Create a new text node
-        lastTextNode = node;
-        newNodes.push({
-          object: 'block',
-          type: 'div',
-          nodes: [node]
-        })
-      }
-      lastNodeType = 'text';
-    }
-    else {
-      newNodes.push(node);
-      lastNodeType = 'block';
-    }
-  });
-
-  return newNodes;
-}
-
 const htmlSerializerRules = [
   {
     deserialize(el, next) {
@@ -132,8 +84,6 @@ const htmlSerializerRules = [
       if (!block) return;
 
       var nodes = next(el.childNodes)
-      nodes = ignoreWhitespaceNodes(nodes);
-      nodes = wrapTextNodes(nodes);
 
       return {
         object: 'block',
