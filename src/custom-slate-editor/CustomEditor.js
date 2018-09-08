@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import './CustomEditor.css';
-import { Editor } from 'slate-react'
+import { Editor, getEventTransfer } from 'slate-react'
 import AggregatePlugin from './plugins'
+import htmlSerializer from './htmlSerializer'
+
 
 class CustomEditor extends Component {
   constructor(props) {
@@ -15,6 +17,7 @@ class CustomEditor extends Component {
         <Editor
           value={this.props.value}
           onChange={this.handleChange}
+          onPaste={this.handlePaste}
           plugins={this.aggregatePlugin.plugins}
           schema={this.aggregatePlugin.schema}
           readOnly={this.props.readOnly}
@@ -36,6 +39,14 @@ class CustomEditor extends Component {
 
   handleChange = (value) => {
     this.props.onChange(value)
+  }
+
+  handlePaste = (event, change) => {
+    const transfer = getEventTransfer(event)
+    if (transfer.type !== 'html') return
+    const { document } = htmlSerializer.deserialize(transfer.html)
+    change.insertFragment(document)
+    return true
   }
 }
 
