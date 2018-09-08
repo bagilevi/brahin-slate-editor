@@ -57,7 +57,13 @@ function getLinkHref(node) {
 }
 
 function getLinkLabel(node) {
-  return node.text
+  const isRaw = node.data.get('isRaw')
+  if (isRaw) {
+    return ''
+  }
+  else {
+    return node.text
+  }
 }
 
 function isBlank(str) {
