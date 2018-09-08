@@ -8,7 +8,6 @@ function onPaste(event, change) {
   const { value } = change
   const { selection } = value
   const { text } = transfer
-  if (transfer.type !== 'text' && transfer.type !== 'html') return
   if (!isUrl(text)) return
   const href = text;
 
