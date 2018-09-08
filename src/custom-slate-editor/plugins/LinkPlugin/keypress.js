@@ -17,7 +17,7 @@ function onKeyDown(event, change, editor) {
 
     if (matches && matches.length) {
       const url = matches[2]
-      change.moveOffsetsTo(startOffset - url.length, startOffset)
+      change.moveAnchorBackward(url.length)
       change.call(insertRawLink, url)
     }
     return
