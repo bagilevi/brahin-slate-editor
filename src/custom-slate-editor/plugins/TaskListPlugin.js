@@ -63,68 +63,12 @@ const plugins = [
 ]
 
 function handleTaskCheckBoxChange(event, { node, editor }) {
-  const value = editor.state.value;
-  const change = value.change().setNodeByKey(node.key, {
-    data: node.data.set('completed', !node.data.get('completed'))
+  const change = editor.change(change => {
+    change.setNodeByKey(node.key, {
+      data: node.data.set('completed', !node.data.get('completed'))
+    })
   })
-  editor.onChange(change);
 }
-
-
-// const BLOCK_TAGS_TO_TYPES = {
-//   li: 'list_item',
-//   ul: 'ul_list',
-//   ol: 'ol_list',
-// }
-// const BLOCK_TYPES_TO_TAGS = _.invert(BLOCK_TAGS_TO_TYPES);
-//
-// const isBlankTextNode = (node) => (
-//   node.object === 'text' && (
-//     node.leaves.length === 0 ||
-//       _.every(node.leaves, (leaf) => (
-//         /^\s*$/.test(leaf.text)
-//       ))
-//   )
-// )
-//
-// const ignoreWhitespaceNodes = (nodes) => (
-//   _.filter(nodes, (node) => (
-//     !isBlankTextNode(node)
-//   ))
-// )
-
-// // All items of ul_list, ol_list and list_item must be blocks, because of the
-// // way `slate-edit-list` was designed.
-// const wrapTextNodes = (nodes) => {
-//   const newNodes = [];
-//   var lastNodeType = null;
-//   var lastTextNode = null;
-//
-//   nodes.forEach((node) => {
-//     if (node.object === 'text') {
-//       if (lastNodeType === 'text') {
-//         // Append to the last text node
-//         lastTextNode.leaves = lastTextNode.leaves.concat(node.leaves);
-//       }
-//       else {
-//         // Create a new text node
-//         lastTextNode = node;
-//         newNodes.push({
-//           object: 'block',
-//           type: 'div',
-//           nodes: [node]
-//         })
-//       }
-//       lastNodeType = 'text';
-//     }
-//     else {
-//       newNodes.push(node);
-//       lastNodeType = 'block';
-//     }
-//   });
-//
-//   return newNodes;
-// }
 
 const htmlSerializerRules = [
   {
