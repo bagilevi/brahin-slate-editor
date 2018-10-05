@@ -1,7 +1,7 @@
 import { insertLink, updateLink, insertRawLink } from './changes'
 import { isHotkey, isKeyHotkey } from 'is-hotkey'
 import env from '../../env'
-import { getLinkHref, getLinkLabel } from './model'
+import { getLinkHref, getLinkLabelForEditing } from './model'
 
 const isInsertLinkHotkey = isKeyHotkey('mod+shift+l')
 const isCreateChildPageHotkey = isKeyHotkey('mod+shift+i')
@@ -54,7 +54,7 @@ function onKeyDown(event, change, editor) {
 
     env.ui.prompt('New URL/href', getLinkHref(node))
       .then((newHref) => {
-        return env.ui.prompt('New label', getLinkLabel(node))
+        return env.ui.prompt('New label', getLinkLabelForEditing(node))
           .then((newLabel) => ({ href: newHref, label: newLabel }))
       })
       .then((newLinkProps) => {

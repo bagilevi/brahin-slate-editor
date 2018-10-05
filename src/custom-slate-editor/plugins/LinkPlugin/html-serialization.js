@@ -1,5 +1,5 @@
 import React from 'react'
-import { buildLinkJson, getLinkHref, getLinkLabel } from './model'
+import { buildLinkJson, getLinkHref, getLinkLabelToDisplay } from './model'
 
 const htmlSerializerRules = [
   {
@@ -17,7 +17,7 @@ const htmlSerializerRules = [
     serialize(node, children) {
       if (node.type === 'link') {
         return (
-          <a href={getLinkHref(node)}>{getLinkLabel(node)}</a>
+          <a href={getLinkHref(node)}>{getLinkLabelToDisplay(node)}</a>
         )
       }
     }

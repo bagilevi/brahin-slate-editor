@@ -56,10 +56,20 @@ function getLinkHref(node) {
   }
 }
 
-function getLinkLabel(node) {
+function getLinkLabelForEditing(node) {
   const isRaw = node.data.get('isRaw')
   if (isRaw) {
     return ''
+  }
+  else {
+    return node.text
+  }
+}
+
+function getLinkLabelToDisplay(node) {
+  const isRaw = node.data.get('isRaw')
+  if (isRaw) {
+    return node.text
   }
   else {
     return node.text
@@ -73,5 +83,6 @@ function isBlank(str) {
 export {
   buildLinkJson,
   getLinkHref,
-  getLinkLabel,
+  getLinkLabelForEditing,
+  getLinkLabelToDisplay,
 }
