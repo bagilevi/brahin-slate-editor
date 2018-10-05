@@ -21,7 +21,9 @@ setEnv(mockEnv);
 ReactDOM.render(
   <App
     initialHtml={initialHtml}
-    showDebugPanes={false}
+    showStatePane={false}
+    showJsonPane={false}
+    showHtmlPane={false}
   />,
   document.getElementById('root')
 );

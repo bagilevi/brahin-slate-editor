@@ -63,7 +63,7 @@ const plugins = [
 ]
 
 function handleTaskCheckBoxChange(event, { node, editor }) {
-  const change = editor.change(change => {
+  editor.change(change => {
     change.setNodeByKey(node.key, {
       data: node.data.set('completed', !node.data.get('completed'))
     })

@@ -30,13 +30,21 @@ class App extends Component {
             />
           </div>
           {
-            this.props.showDebugPanes ? (
+            this.props.showStatePane ? (
+              <div className="VisualState"><VisualState object={value}/></div>
+            ) : null
+          }
+          {
+            this.props.showJsonPane ? (
               <pre className="Json">{JSON.stringify(value.toJSON(), null, 2)}</pre>
             ) : null
           }
           {
-            this.props.showDebugPanes ? (
-              <div className="VisualState"><VisualState object={value}/></div>
+            this.props.showHtmlPane ? (
+              <div>
+                <div style={{ fontFamily: 'Menlo, monospace' }} className="Html">{htmlSerializer.serialize(value)}</div>
+                <div style={{ fontSize: 'bigger' }} dangerouslySetInnerHTML={{ __html: htmlSerializer.serialize(value) }} />
+              </div>
             ) : null
           }
         </div>
