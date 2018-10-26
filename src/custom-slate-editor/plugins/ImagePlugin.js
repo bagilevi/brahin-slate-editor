@@ -1,41 +1,75 @@
-/*
-
-  This plugin is unused because too much extra work is needed to make it work properly.
-
-  Feature creep / bugs:
-
-    * bug: dropping image does not work in the main app
-    * store the image file separately instead of Base64-encoding it
-    * resizing - idea: use +/- keys
-    * bug: inserting images sometimes seems to insert it into the contenteditable without triggering slate
-    * bug: cut-paste a single image doesn't work (but it works when you cut a larger segment)
-
-*/
 import React from 'react';
 import { Block } from 'slate'
 import { getEventRange, getEventTransfer } from 'slate-react'
-import { LAST_CHILD_TYPE_INVALID } from 'slate-schema-violations'
 import { isKeyHotkey } from 'is-hotkey'
 import imageExtensions from 'image-extensions'
 import isUrl from 'is-url'
 import env from '../env';
 
-const isInsertImageHotkey = isKeyHotkey('mod+shift+i')
+const isInsertImageHotkey = isKeyHotkey('mod+shift+m')
 
-function isImage(url) {
-  return !!imageExtensions.find(url.endsWith)
+const imageStyle = (node, selected) => {
+  return {
+    display: 'block',
+    maxWidth: '100%',
+    maxHeight: '50em',
+    outline: (selected ? 'double 3px #000' : 'none'),
+    zIndex: (selected ? 999 : null),
+  }
 }
 
-function insertImage(change, src, target) {
+function isImage(url) {
+  return !!imageExtensions.find(ext => url.endsWith(ext))
+}
+
+const Image = props => (
+  <img
+    alt=""
+    style={imageStyle(props.node, props.selected)}
+    {...props}
+  />
+)
+
+function getBlankBlock(value) {
+  if (!value.selection.start.key) return null
+  const block = value.startBlock
+  if (block.text === '') return block
+}
+
+function insertImage(change, editor, src, target) {
   if (target) {
     change.select(target)
   }
 
-  change.insertBlock({
-    type: 'image',
-    isVoid: true,
-    data: { src },
-  })
+  const blankBlock = getBlankBlock(editor.value)
+
+  if (blankBlock) {
+    change.replaceNodeByKey(
+      blankBlock.key,
+      {
+        object: 'block',
+        type: 'image',
+        data: { src },
+      }
+    )
+  }
+  else {
+    change.insertBlock({
+      type: 'image',
+      data: { src },
+    })
+  }
+}
+
+function updateImage(change, node, src) {
+  change.replaceNodeByKey(
+    node.key,
+    {
+      object: 'block',
+      type: 'image',
+      data: { src },
+    }
+  )
 }
 
 const plugins = [
@@ -45,73 +79,121 @@ const plugins = [
         event.preventDefault();
         env.ui.prompt('Enter the URL of the image:').then((src) => {
           if (!src) return
-          editor.change((change) => {
-            insertImage(change, src, change.value.selection)
+          editor.change(change => {
+            change.call(insertImage, editor, src)
           })
         })
       }
     },
 
     renderNode: props => {
-      const { attributes, node, isSelected } = props
+      const { attributes, node, isSelected, isFocused, editor } = props
       if (node.type === 'image') {
         const src = node.data.get('src')
-        const className = isSelected ? 'active' : null
-        const style = { display: 'block' }
         return (
-          <img src={src} alt="" className={className} style={style} {...attributes} />
+          <Image
+            src={src}
+            alt=""
+            node={node}
+            selected={isFocused || isSelected}
+            onDoubleClick={handleEdit.bind(this, editor, node)}
+            {...attributes}
+          />
         )
       }
     },
 
-    schema: {
-      document: {
-        // A schema to enforce that there's always a paragraph as the last block.
-        last: { types: ['paragraph'] },
-        normalize: (change, reason, { node, child }) => {
-          if (reason === LAST_CHILD_TYPE_INVALID) {
-            const paragraph = Block.create('paragraph')
-            return change.insertNodeByKey(node.key, node.nodes.size, paragraph)
-          }
-        },
-      },
-    },
-
-    onDrop: (event, change, editor) => {
-      // console.log('dropped')
-      const target = getEventRange(event, change.value)
-      if (!target && event.type === 'drop') return
-
-      const transfer = getEventTransfer(event)
-      const { type, text, files } = transfer
-
-      if (type === 'files') {
-        for (const file of files) {
-          const reader = new FileReader()
-          const [mime] = file.type.split('/')
-          if (mime !== 'image') continue
-
-          reader.addEventListener('load', () => {
-            editor.change(change => {
-              change.call(insertImage, reader.result, target)
-            })
-          })
-
-          reader.readAsDataURL(file)
-        }
-      }
-
-      if (type === 'text') {
-        if (!isUrl(text)) return
-        if (!isImage(text)) return
-        change.call(insertImage, text, target)
-      }
-    }
+    onDrop: handleDropOrPaste,
+    onPaste: handleDropOrPaste,
   }
 ]
+
+function handleDropOrPaste(event, change, editor) {
+  const target = getEventRange(event, change.value)
+  if (!target && event.type === 'drop') return
+
+  const transfer = getEventTransfer(event)
+  const { type, text, files } = transfer
+
+  if (type === 'files') {
+    for (const file of files) {
+      const [mime] = file.type.split('/')
+      if (mime !== 'image') continue
+
+      env.storage.saveFile(file).then(({ url }) => {
+        editor.change(change => {
+          change.call(insertImage, editor, url, target)
+        })
+      })
+    }
+  }
+
+  if (type === 'text' || type === 'html') {
+    const url = '' + text
+    if (!isUrl(url)) return
+    if (!isImage(url)) return
+    change.call(insertImage, editor, url, target)
+  }
+}
+
+
+function handleEdit(editor, node, event) {
+  event.preventDefault();
+  const oldSrc = node.data.get('src')
+  env.ui.prompt('Image URL:', oldSrc).then((src) => {
+    if (!src || src === oldSrc) return
+    editor.change(change => {
+      change.call(updateImage, node, src)
+    })
+  })
+}
+
+const htmlSerializerRules = [
+  {
+    deserialize(el, next) {
+      if (el.tagName !== 'IMG') return
+
+      const src = el.getAttribute('src')
+
+      return {
+        object: 'block',
+        type: 'image',
+        data: { src }
+      }
+    },
+
+    serialize(node, children) {
+      if (node.type !== 'image') return;
+      return (
+        <img
+          src={node.data.get('src')}
+          alt=""
+          style={imageStyle(node, false)} />
+      )
+    }
+  },
+]
+
+const addToSchema = (schema) => {
+  schema.blocks.image = {
+    isVoid: true,
+  }
+
+  schema.document = {
+    last: { type: 'paragraph' },
+    normalize: (change, { code, node, child }) => {
+      if (code === 'last_child_type_invalid') {
+        const paragraph = Block.create('paragraph')
+        return change.insertNodeByKey(node.key, node.nodes.size, paragraph)
+      }
+    },
+  }
+}
 
 export default function ImagePlugin(options) {
   return {
     plugins,
+    htmlSerializerRules,
+    addToSchema
   }
 }

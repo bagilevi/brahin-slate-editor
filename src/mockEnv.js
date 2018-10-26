@@ -15,5 +15,17 @@ const env = {
     },
   },
   editDiagram: (() => { alert('editDiagram stub not implemented') }),
+
+  storage: {
+    saveFile: (file) => (new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.addEventListener('load', () => {
+        const dataURL = reader.result
+        console.log('dataURL', dataURL)
+        resolve({ url: dataURL })
+      })
+      reader.readAsDataURL(file)
+    })),
+  }
 }
 export default env;

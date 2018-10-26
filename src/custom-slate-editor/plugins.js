@@ -6,6 +6,7 @@ import HeadingsPlugin from './plugins/HeadingsPlugin';
 import ListsPlugin from './plugins/ListsPlugin';
 import TaskListPlugin from './plugins/TaskListPlugin';
 import LinkPlugin from './plugins/LinkPlugin';
+import ImagePlugin from './plugins/ImagePlugin';
 import OneLinePlugin from './plugins/OneLinePlugin';
 
 const pluginConstructors = {
@@ -15,6 +16,7 @@ const pluginConstructors = {
     RichTextPlugin,
     HeadingsPlugin,
     ListsPlugin,
+    ImagePlugin,
     TaskListPlugin,
   ],
   oneLine: [
