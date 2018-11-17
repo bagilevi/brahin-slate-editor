@@ -1,7 +1,9 @@
 import { buildLinkJson } from './model'
 
 function insertLink(change, linkProps) {
-  var c = change.insertInline(buildLinkJson(linkProps))
+  const linkJson = buildLinkJson(linkProps)
+  console.log('linkJson', linkJson)
+  var c = change.insertInline(linkJson)
   c.moveToStartOfNextText()
   c.focus()
 }

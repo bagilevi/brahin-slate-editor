@@ -14,6 +14,21 @@ const plugins = [
 const addToSchema = (schema) => {
   schema.inlines.link = {
     isVoid: false,
+
+    nodes: [
+      {
+        match: [{ text: /^.+$/ }], // Link must have a label
+      }
+    ],
+
+    normalize: (change, { code, node, child }) => {
+      if (code === 'child_text_invalid') {
+        // If the link doesn't have a label => delete it
+        // This can happen when we press Backspace on the last character or
+        // Ctrl+X the whole link.
+        return change.removeNodeByKey(node.key)
+      }
+    }
   }
 }
 
