@@ -22,8 +22,8 @@ ReactDOM.render(
   <App
     initialHtml={initialHtml}
     showStatePane={false}
-    showJsonPane={false}
-    showHtmlPane={false}
+    showJsonPane={true}
+    showHtmlPane={true}
   />,
   document.getElementById('root')
 );

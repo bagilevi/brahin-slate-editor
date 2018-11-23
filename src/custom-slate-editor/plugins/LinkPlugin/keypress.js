@@ -7,9 +7,9 @@ const isInsertLinkHotkey = isKeyHotkey('mod+shift+l')
 const isCreateChildPageHotkey = isKeyHotkey('mod+shift+i')
 const isEditLinkHotkey = isHotkey('mod+e')
 
-function onKeyDown(event, change, editor) {
+function onKeyDown(event, editor, next) {
   if (isHotkey('enter', event) || isHotkey('space', event)) {
-    const { value } = change
+    const { value } = editor
     const { startText, startOffset } = value
     const { text } = startText
     const string = text.slice(0, startOffset)
@@ -17,38 +17,35 @@ function onKeyDown(event, change, editor) {
 
     if (matches && matches.length) {
       const url = matches[2]
-      change.moveAnchorBackward(url.length)
-      change.call(insertRawLink, url)
+      editor.moveAnchorBackward(url.length)
+      editor.command(insertRawLink, url)
+      return true
     }
-    return
+    return next()
   }
 
   if (isInsertLinkHotkey(event)) {
     event.preventDefault()
     env.linking.getLinkPropertiesForInsertion().then(linkProps => {
-      editor.change((change) => {
-        change.call(insertLink, linkProps)
-      })
+      editor.command(insertLink, linkProps)
     })
-    return
+    return next()
   }
 
   if (isCreateChildPageHotkey(event)) {
     event.preventDefault()
 
     env.linking.getLinkPropertiesForInsertion({ mode: 'create_child' }).then(linkProps => {
-      editor.change((change) => {
-        change.call(insertLink, linkProps)
-      })
+      editor.command(insertLink, linkProps)
       // Automatically go to the new page - useful if the user intends to create a new wiki page.
       env.linking.followLink(linkProps, { ifNewResource: true })
     })
-    return
+    return next()
   }
 
   if (isEditLinkHotkey(event)) {
     event.preventDefault()
-    const { value } = change
+    const { value } = editor
     const node = value.inlines.find(inline => inline.type === 'link')
     if (!node) return
 
@@ -58,12 +55,11 @@ function onKeyDown(event, change, editor) {
           .then((newLabel) => ({ href: newHref, label: newLabel }))
       })
       .then((newLinkProps) => {
-        editor.change((change) => {
-          change.call(updateLink, node, newLinkProps)
-        })
+        editor.command(updateLink, node, newLinkProps)
       })
       .catch((err) => { console.error(err); editor.focus() })
   }
+  return next()
 }
 
 export {

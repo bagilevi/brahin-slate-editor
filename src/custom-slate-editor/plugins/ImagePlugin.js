@@ -74,20 +74,19 @@ function updateImage(change, node, src) {
 
 const plugins = [
   {
-    onKeyDown: (event, change, editor) => {
+    onKeyDown: (event, editor, next) => {
       if (isInsertImageHotkey(event)) {
         event.preventDefault();
         env.ui.prompt('Enter the URL of the image:').then((src) => {
-          if (!src) return
-          editor.change(change => {
-            change.call(insertImage, editor, src)
-          })
+          if (!src) return next()
+          editor.command(insertImage, editor, src)
         })
       }
+      return next()
     },
 
-    renderNode: props => {
-      const { attributes, node, isSelected, isFocused, editor } = props
+    renderNode: (props, editor, next) => {
+      const { attributes, node, isSelected, isFocused } = props
       if (node.type === 'image') {
         const src = node.data.get('src')
         return (
@@ -101,6 +100,7 @@ const plugins = [
           />
         )
       }
+      return next()
     },
 
     onDrop: handleDropOrPaste,
@@ -108,9 +108,10 @@ const plugins = [
   }
 ]
 
-function handleDropOrPaste(event, change, editor) {
-  const target = getEventRange(event, change.value)
-  if (!target && event.type === 'drop') return
+function handleDropOrPaste(event, editor, next) {
+  console.log('handleDropOrPaste')
+  const target = getEventRange(event, editor)
+  if (!target && event.type === 'drop') return next()
 
   const transfer = getEventTransfer(event)
   const { type, text, files } = transfer
@@ -121,9 +122,7 @@ function handleDropOrPaste(event, change, editor) {
       if (mime !== 'image') continue
 
       env.storage.saveFile(file).then(({ url }) => {
-        editor.change(change => {
-          change.call(insertImage, editor, url, target)
-        })
+        editor.command(insertImage, editor, url, target)
       })
     }
   }
@@ -132,8 +131,10 @@ function handleDropOrPaste(event, change, editor) {
     const url = '' + text
     if (!isUrl(url)) return
     if (!isImage(url)) return
-    change.call(insertImage, editor, url, target)
+    editor.command(insertImage, editor, url, target)
   }
+
+  return next()
 }
 
 
@@ -142,9 +143,7 @@ function handleEdit(editor, node, event) {
   const oldSrc = node.data.get('src')
   env.ui.prompt('Image URL:', oldSrc).then((src) => {
     if (!src || src === oldSrc) return
-    editor.change(change => {
-      change.call(updateImage, node, src)
-    })
+    editor.command(updateImage, node, src)
   })
 }
 

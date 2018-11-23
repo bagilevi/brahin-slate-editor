@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import React from 'react';
-import EditList from 'slate-edit-list-bagilevi';
+import EditList from '@bagilevi/slate-edit-list';
 import AutoReplace from 'slate-auto-replace';
 import { isKeyHotkey } from 'is-hotkey'
 
@@ -22,7 +22,7 @@ const plugins = [
     trigger: 'space',
     before: /^(\*|-)$/,
     change: (change, e, matches) => {
-      return editListPlugin.changes.wrapInList(change, 'ul_list');
+      return change.wrapInList('ul_list');
     }
   }),
 
@@ -30,33 +30,37 @@ const plugins = [
     trigger: 'space',
     before: /^(\d?\.)$/,
     change: (change, e, matches) => {
-      return editListPlugin.changes.wrapInList(change, 'ol_list');
+      return change.wrapInList('ol_list');
     }
   }),
 
   {
-    onKeyDown: (event, change) => {
-      if (change.value.focusBlock.type === 'code_line') return;
+    onKeyDown: (event, editor, next) => {
+      // TODO: try to handle this within the CodeBlock plugin
+      if (editor.value.focusBlock.type === 'code_line') return next();
+
       if (isCreateBulletListHotkey(event)) {
         event.preventDefault();
-        if (inList(change.value)) {
-          return editListPlugin.changes.unwrapList(change)
+        if (inList(editor.value)) {
+          return editor.unwrapList()
         } else {
-          return editListPlugin.changes.wrapInList(change, 'ul_list')
+          return editor.wrapInList('ul_list')
         }
       }
       if (isCreateNumberedListHotkey(event)) {
         event.preventDefault();
-        if (inList(change.value)) {
-          return editListPlugin.changes.unwrapList(change)
+        if (inList(editor.value)) {
+          return editor.unwrapList()
         } else {
-          return editListPlugin.changes.wrapInList(change, 'ol_list')
+          return editor.wrapInList('ol_list')
         }
       }
+      next();
     },
 
-    renderNode: (props) => {
+    renderNode: (props, editor, next) => {
       const { attributes, children, node } = props
+
       if (node.type === 'ul_list') {
         return <ul {...attributes}>{children}</ul>;
       }
@@ -66,6 +70,7 @@ const plugins = [
       if (node.type === 'list_item') {
         return <li {...attributes}>{children}</li>;
       }
+      return next()
     }
   }
 ]

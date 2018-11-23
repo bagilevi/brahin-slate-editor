@@ -1,5 +1,5 @@
 import React from 'react';
-import EditList from 'slate-edit-list-bagilevi';
+import EditList from '@bagilevi/slate-edit-list';
 import AutoReplace from 'slate-auto-replace';
 import { isKeyHotkey } from 'is-hotkey'
 
@@ -20,24 +20,28 @@ const plugins = [
     trigger: 'space',
     before: /^(-?\s?\[\s?\])$/,
     change: (change, e, matches) => {
-      return editListPlugin.changes.wrapInList(change, 'task_list');
+      return change.wrapInList('task_list');
     }
   }),
 
   {
-    onKeyDown: (event, change) => {
+    onKeyDown: (event, editor, next) => {
+      // TODO: try to handle this within the CodeBlock plugin
+      if (editor.value.focusBlock.type === 'code_line') return next();
+
       if (isCreateTaskHotkey(event)) {
         event.preventDefault();
-        if (inTask(change.value)) {
-          return editListPlugin.changes.unwrapList(change)
+        if (inTask(editor.value)) {
+          return editor.unwrapList()
         } else {
-          return editListPlugin.changes.wrapInList(change, 'task_list')
+          return editor.wrapInList('task_list')
         }
       }
+      return next()
     },
 
-    renderNode: (props) => {
-      const { attributes, children, node, editor } = props
+    renderNode: (props, editor, next) => {
+      const { attributes, children, node } = props
       if (node.type === 'task_list') {
         return <div className="task_list" {...attributes}>{children}</div>;
       }
@@ -58,15 +62,14 @@ const plugins = [
           </div>
         );
       }
+      return next()
     },
   }
 ]
 
 function handleTaskCheckBoxChange(event, { node, editor }) {
-  editor.change(change => {
-    change.setNodeByKey(node.key, {
-      data: node.data.set('completed', !node.data.get('completed'))
-    })
+  editor.setNodeByKey(node.key, {
+    data: node.data.set('completed', !node.data.get('completed'))
   })
 }
 
