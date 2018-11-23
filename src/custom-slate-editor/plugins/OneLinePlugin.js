@@ -2,7 +2,7 @@ const isEnter = (e) => e.keyCode === 13;
 
 const plugins = [
   {
-    onKeyDown: (event, change) => {
+    onKeyDownTODO: (event, change) => {
       if (isEnter(event)) {
         event.preventDefault();
         event.stopPropagation();

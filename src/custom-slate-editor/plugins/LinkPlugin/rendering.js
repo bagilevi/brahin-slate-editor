@@ -2,7 +2,7 @@ import React from 'react'
 import env from '../../env'
 import { getLinkHref } from './model'
 
-function renderNode({ attributes, children, node, isSelected }) {
+function renderNode({ attributes, children, node, isSelected }, editor, next) {
   if (node.type === 'link') {
     attributes.className = `${attributes.className || ''} ${(isSelected ? 'active' : '')} link`
     return (
@@ -15,6 +15,7 @@ function renderNode({ attributes, children, node, isSelected }) {
       </a>
     )
   }
+  return next()
 }
 
 function handleLinkClick(event, node) {

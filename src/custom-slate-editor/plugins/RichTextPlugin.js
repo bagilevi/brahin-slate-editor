@@ -5,17 +5,18 @@ import { isKeyHotkey } from 'is-hotkey'
 const BuildMarkPlugin = (markType, hotKey, render) => {
   return ({ type, key }) => {
     return {
-      onKeyDown: (event, change) => {
+      onKeyDown: (event, editor, next) => {
         if (isKeyHotkey(hotKey)(event)) {
           event.preventDefault();
-          change.toggleMark(markType);
-          return true;
+          return editor.toggleMark(markType);
         }
+        return next();
       },
-      renderMark: ({ children, mark }) => {
+      renderMark: ({ children, mark }, editor, next) => {
         if (mark.type === markType) {
           return render(children);
         }
+        return next();
       }
     }
   }

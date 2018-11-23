@@ -2,28 +2,28 @@ import { getEventTransfer } from 'slate-react'
 import isUrl from 'is-url'
 import { insertRawLink, makeLinkFromSelection } from './changes'
 
-function onPaste(event, change) {
+function onPaste(event, editor, next) {
   const transfer = getEventTransfer(event)
   console.log('paste:', transfer)
-  const { value } = change
+  const { value } = editor
   const { selection } = value
   const { text } = transfer
-  if (!isUrl(text)) return
+  if (!isUrl(text)) return next()
   const href = text;
 
   console.log('selection.isCollapsed', selection.isCollapsed)
 
   if (selection.isCollapsed) {
     console.log('insertRawLink', href)
-    change.call(insertRawLink, href)
+    editor.command(insertRawLink, href)
   }
   else {
-    change.call(makeLinkFromSelection, href)
+    editor.command(makeLinkFromSelection, href)
   }
 
-  change.moveToEnd()
+  editor.moveToEnd()
 
-  return change
+  return true
 }
 
 export {

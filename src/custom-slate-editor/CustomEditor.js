@@ -41,12 +41,12 @@ class CustomEditor extends Component {
     this.props.onChange(value)
   }
 
-  handlePaste = (event, change) => {
+  handlePaste = (event, change, next) => {
     const transfer = getEventTransfer(event)
-    if (transfer.type !== 'html') return
+    if (transfer.type !== 'html') return next()
     const { document } = htmlSerializer.deserialize(transfer.html)
     change.insertFragment(document)
-    return true
+    return next()
   }
 }
 

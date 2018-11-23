@@ -1,40 +1,40 @@
 import { buildLinkJson } from './model'
 
-function insertLink(change, linkProps) {
+function insertLink(editor, linkProps) {
   const linkJson = buildLinkJson(linkProps)
   console.log('linkJson', linkJson)
-  var c = change.insertInline(linkJson)
+  var c = editor.insertInline(linkJson)
   c.moveToStartOfNextText()
   c.focus()
 }
 
-function updateLink(change, node, linkProps) {
+function updateLink(editor, node, linkProps) {
   const { href } = linkProps
   if (href) {
-    change.replaceNodeByKey(
+    editor.replaceNodeByKey(
       node.key,
       buildLinkJson(linkProps),
     )
-    change.focus()
+    editor.focus()
   }
   else {
-    unwrapLink(change)
+    unwrapLink(editor)
   }
 }
 
-function insertRawLink(change, href) {
-  insertLink(change, { href })
+function insertRawLink(editor, href) {
+  insertLink(editor, { href })
 }
 
-function makeLinkFromSelection(change, href) {
-  const { value } = change
+function makeLinkFromSelection(editor, href) {
+  const { value } = editor
   const { fragment } = value
   if (hasLinks(value)) {
-    change.call(unwrapLink)
+    editor.command(unwrapLink)
   }
 
-  change.wrapInline(
-    buildLinkJson({ href, label: fragment.text}),
+  editor.wrapInline(
+    buildLinkJson({ href, label: fragment.text }),
   )
 }
 
@@ -42,8 +42,8 @@ function hasLinks(value) {
   return value.inlines.some(inline => inline.type === 'link')
 }
 
-function unwrapLink(change) {
-  change.unwrapInline('link')
+function unwrapLink(editor) {
+  editor.unwrapInline('link')
 }
 
 export {

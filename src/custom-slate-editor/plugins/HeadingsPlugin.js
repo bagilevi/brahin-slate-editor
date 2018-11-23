@@ -7,11 +7,11 @@ const isEnter = (e) => e.keyCode === 13;
 const BuildHeadingPlugin = (blockType, hotKey, render) => {
   return ({ type, key }) => {
     return {
-      onKeyDown: (event, change) => {
+      onKeyDown: (event, editor, next) => {
         if (isKeyHotkey(hotKey)(event)) {
           event.preventDefault();
-          change.setBlocks(
-            change.value.blocks.some(block => block.type === blockType)
+          editor.setBlocks(
+            editor.value.blocks.some(block => block.type === blockType)
             ? 'paragraph'
             : blockType
           );
@@ -19,20 +19,22 @@ const BuildHeadingPlugin = (blockType, hotKey, render) => {
         }
         if (isEnter(event)) {
           // Pressing Enter after a heading => the new line should be a normal paragraph
-          if (change.value.startBlock.type.substring(0, 7) === 'heading') {
+          if (editor.value.startBlock.type.substring(0, 7) === 'heading') {
             event.preventDefault();
-            change.splitBlock();
-            if (change.value.startBlock.getText() === '') {
-              change.setBlocks('paragraph');
+            editor.splitBlock();
+            if (editor.value.startBlock.getText() === '') {
+              editor.setBlocks('paragraph');
             }
             return true;
           }
         }
+        return next();
       },
-      renderNode: ({ attributes, children, node }) => {
+      renderNode: ({ attributes, children, node }, editor, next) => {
         if (node.type === blockType) {
           return render({ attributes, children });
         }
+        return next();
       }
     }
   }
