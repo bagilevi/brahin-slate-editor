@@ -2,15 +2,22 @@
 
 set -e
 
-echo
-echo "Building..."
-yarn build
+ver=$(cat package.json | grep '"version":' | head -1 | sed -e 's/ *"[^"]*": "\([^"]*\)", */\1/')
+
+# echo
+# echo "Building $ver..."
+# yarn build
 
 fn=$(ls build/static/js/main*.js)
 basename=$(basename $fn)
 targetdir=../homepage/public_html/modules
 
-for targetfname in brahin-slate-editor-v0.2.4.js; do
+git add -A
+git status
+git commit -S -m "v$ver"
+git tag v$ver
+
+for targetfname in brahin-slate-editor-v$ver.js; do
   echo
   echo "Copying javascript file $fn -> $targetdir/$targetfname..."
   cat $fn | perl -pe "s/\Q$basename/$targetfname/g" > $targetdir/$targetfname

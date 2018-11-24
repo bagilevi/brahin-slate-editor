@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@bagilevi/slate-edit-list@^0.16.0":
-  version "0.16.0"
-  resolved "https://registry.yarnpkg.com/@bagilevi/slate-edit-list/-/slate-edit-list-0.16.0.tgz#de84db2d7716a5afd46343eba744c909b5b518e2"
+"@bagilevi/slate-edit-list@^0.16.1":
+  version "0.16.1"
+  resolved "https://registry.yarnpkg.com/@bagilevi/slate-edit-list/-/slate-edit-list-0.16.1.tgz#e4b8d926d10ad8e3bd5c419f69167563913bfc3d"
 
 abab@^1.0.3:
   version "1.0.4"
